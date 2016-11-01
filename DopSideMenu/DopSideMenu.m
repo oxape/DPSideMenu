@@ -15,11 +15,12 @@
 @property (nonatomic, strong) UIView *contentViewContainer;
 @property (nonatomic, strong) NSMutableArray *constraints;
 @property (nonatomic, strong) NSLayoutConstraint *menuViewContainerConstaint;
+@property (nonatomic, assign) NSTimeInterval animationDuration;
 
 @property (nonatomic, assign) BOOL showMenu;
 @property (nonatomic, assign) BOOL menuVisible;
+
 @property (nonatomic, assign) CFTimeInterval pausedTime;
-@property (nonatomic, assign) CFTimeInterval beginTime;
 @property (nonatomic, assign) CGPoint beginPoint;
 @property (nonatomic, assign) CGFloat percent;
 
@@ -50,6 +51,8 @@
     _menuViewContainer = [[UIView alloc] init];
     _contentViewContainer = [[UIView alloc] init];
     _contentViewInShowMenuOffsetLeft = 60.f;
+    
+    self.animationDuration = 0.25;
 }
 
 - (void)loadView
@@ -62,20 +65,51 @@
     [super viewDidLoad];
     [self.view addSubview:self.menuViewContainer];
     [self.view addSubview:self.contentViewContainer];
-    
-    [self addChildViewController:self.menuViewController];
-    self.menuViewController.view.frame = self.menuViewContainer.frame;
-    self.menuViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    [self.menuViewContainer addSubview:self.menuViewController.view];
-    [self.menuViewController didMoveToParentViewController:self];
-    
-    [self addChildViewController:self.contentViewController];
-    self.contentViewController.view.frame = self.contentViewContainer.frame;
-    self.contentViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-    [self.contentViewContainer addSubview:self.contentViewController.view];
-    [self.contentViewController didMoveToParentViewController:self];
+    if (self.menuViewController) {
+        [self addChildViewController:self.menuViewController];
+        self.menuViewController.view.frame = self.menuViewContainer.frame;
+        self.menuViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        [self.menuViewContainer addSubview:self.menuViewController.view];
+        [self.menuViewController didMoveToParentViewController:self];
+    }
+    if (self.contentViewController) {
+        [self addChildViewController:self.contentViewController];
+        self.contentViewController.view.frame = self.contentViewContainer.frame;
+        self.contentViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        [self.contentViewContainer addSubview:self.contentViewController.view];
+        [self.contentViewController didMoveToParentViewController:self];
+    }
     
     [self.view setNeedsUpdateConstraints];
+}
+
+- (void)updateViewConstraints
+{
+    NSLog(@"updateViewConstraints");
+    [super updateViewConstraints];
+    [self.view removeConstraints:self.constraints];
+    
+    [self.constraints removeAllObjects];
+    self.menuViewContainer.translatesAutoresizingMaskIntoConstraints = NO;
+    self.contentViewContainer.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_menuViewContainer]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_menuViewContainer)]];
+    [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.menuViewContainer attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1 constant:-self.contentViewInShowMenuOffsetLeft]];
+    
+    [self.constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_contentViewContainer]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_contentViewContainer)]];
+    [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.contentViewContainer attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0]];
+    
+    
+    
+    if (self.showMenu) {
+        [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.menuViewContainer attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
+        
+        [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.contentViewContainer attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.menuViewContainer attribute:NSLayoutAttributeRight multiplier:1.0 constant:0.0]];
+    }else{
+        [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.contentViewContainer attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
+        
+        [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.menuViewContainer attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:160]];
+    }
+    [self.view addConstraints:self.constraints];
 }
 
 - (void)hideViewController:(UIViewController *)viewController
@@ -110,6 +144,8 @@
     [contentViewController.view addGestureRecognizer:recongnizer];
 }
 
+#pragma mark - Action Method
+
 - (void)panGestureRecognizerAction:(UIPanGestureRecognizer *)recognizer
 {
     CGPoint point = [recognizer translationInView:self.view];
@@ -118,18 +154,15 @@
         self.showMenu = NO;
         self.menuVisible = NO;
         CFTimeInterval pausedTime = [self.view.layer convertTime:CACurrentMediaTime() fromLayer:nil];
-        NSLog(@"pausedTime = %.2f", pausedTime);
+        //只在这里使用过self.pausedTime，暂时没有其他用处
+        self.pausedTime = pausedTime;
         self.view.layer.speed = 0.0;
         self.view.layer.timeOffset = 0;
-        self.pausedTime = pausedTime;
         self.beginPoint = [recognizer locationOfTouch:0 inView:self.view]; // the location of a particular touch];
-        [UIView  beginAnimations:@"move" context:nil];
-        [UIView setAnimationDuration:3.0];
-//        [UIView setAnimationBeginsFromCurrentState:YES];
-//        [UIView animateWithDuration:3.0 animations:^{
+        [UIView animateWithDuration:self.animationDuration animations:^{
             [self.view setNeedsUpdateConstraints];
             [self.view layoutIfNeeded];
-//        }];
+        }];
         
         [UIView commitAnimations];
     }else if(recognizer.state == UIGestureRecognizerStateChanged){
@@ -139,108 +172,51 @@
         offset = self.beginPoint.x-point.x;
         CGFloat persent = (self.beginPoint.x-point.x)/(ABS(self.beginPoint.x));
         
-        
-//        if (persent > 0) {
-//            persent = 0;
-//        }
         persent = ABS(persent);
         if (persent > 1) {
             persent = 1;
         }
-        NSLog(@"point.x = %.2f width = %.2f percent = %.2f", offset, self.beginPoint.x, persent);
-        persent = persent*3;
-        self.view.layer.timeOffset = 0 + persent;
+//        NSLog(@"point.x = %.2f width = %.2f percent = %.2f", offset, self.beginPoint.x, persent);
+        persent = persent;
+        self.view.layer.timeOffset = 0 + persent*self.animationDuration;
         self.percent = persent;
     }else if(recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateCancelled || recognizer.state == UIGestureRecognizerStateFailed){
-        [UIView animateWithDuration:3.0 animations:^{
-            [self.view setNeedsUpdateConstraints];
-            [self.view layoutIfNeeded];
-        }];
-        self.view.layer.speed = 1;
-        self.view.layer.timeOffset = 0;
-        self.view.layer.timeOffset = self.percent;
-        
-        //以下三种方案
-        //1
-//        layer.timeOffset = persent;
-//        [self stopAnimation:self.view];
-//        [UIView  beginAnimations:@"move" context:nil];
-//        [UIView setAnimationDuration:3.0];
-//        [UIView setAnimationBeginsFromCurrentState:YES];
-//        //        [UIView animateWithDuration:3.0 animations:^{
-//        [self.view setNeedsUpdateConstraints];
-//        [self.view layoutIfNeeded];
-//        //        }];
-//        
-//        [UIView commitAnimations];
-        //2
-//        layer.timeOffset = 0.0;
-//        CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - self.pausedTime;
-//        layer.beginTime = timeSincePause;
-        //3
-//        layer.timeOffset = 0.0;
-//        layer.beginTime = 0.0;
-//        CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - self.pausedTime;
-//        layer.beginTime = timeSincePause;
+        CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkTick:)];
+        displayLink.paused = NO;
+        [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
     }
 }
 
-- (void)updateViewConstraints
-{
-    NSLog(@"updateViewConstraints");
-    [super updateViewConstraints];
-    [self.view removeConstraints:self.constraints];
-    
-    [self.constraints removeAllObjects];
-    self.menuViewContainer.translatesAutoresizingMaskIntoConstraints = NO;
-    self.contentViewContainer.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_menuViewContainer]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_menuViewContainer)]];
-    [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.menuViewContainer attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1 constant:-self.contentViewInShowMenuOffsetLeft]];
-    
-    [self.constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_contentViewContainer]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_contentViewContainer)]];
-    [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.contentViewContainer attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0]];
-    
-    
-    
-    if (self.showMenu) {
-        [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.menuViewContainer attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
-        
-        [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.contentViewContainer attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.menuViewContainer attribute:NSLayoutAttributeRight multiplier:1.0 constant:0.0]];
-    }else{
-        [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.contentViewContainer attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0.0]];
-        
-        [self.constraints addObject:[NSLayoutConstraint constraintWithItem:self.menuViewContainer attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:160]];
+- (void)displayLinkTick:(CADisplayLink *)link {
+    //0.5作为门限
+    if(self.percent > 0.5) {
     }
-    [self.view addConstraints:self.constraints];
 }
+
+#pragma mark - Public Method
 
 - (void)showMenuViewController
 {
     self.showMenu = YES;
-    self.view.layer.speed = 0;
-    [UIView animateWithDuration:0.5 animations:^{
+    [UIView animateWithDuration:self.animationDuration animations:^{
         [self.view setNeedsUpdateConstraints];
         [self.view layoutIfNeeded];
     } completion:^(BOOL finished) {
         self.menuVisible = YES;
     }];
-    self.view.layer.speed = 1;
-    self.view.layer.beginTime = 0.25;
 }
 
 - (void)hideMenuViewController
 {
     self.showMenu = NO;
     self.menuVisible = NO;
-    self.view.layer.speed = 0;
-    [UIView animateWithDuration:0.5 animations:^{
+    [UIView animateWithDuration:self.animationDuration animations:^{
         [self.view setNeedsUpdateConstraints];
         [self.view layoutIfNeeded];
     }];
-    self.view.layer.speed = 1;
-    self.view.layer.beginTime = 0.25;
 }
 
+#pragma mark - Lazy init
 - (NSMutableArray *)constraints
 {
     if (!_constraints) {
@@ -249,5 +225,7 @@
     
     return _constraints;
 }
+
+
 
 @end

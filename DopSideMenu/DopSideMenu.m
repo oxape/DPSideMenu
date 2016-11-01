@@ -152,24 +152,11 @@
         self.view.layer.timeOffset = 0 + persent;
         self.percent = persent;
     }else if(recognizer.state == UIGestureRecognizerStateEnded || recognizer.state == UIGestureRecognizerStateCancelled || recognizer.state == UIGestureRecognizerStateFailed){
-        CALayer *layer = self.view.layer;
-        [layer removeAllAnimations];
-        
-        self.showMenu = YES;
-        [self updateViewConstraints];
-        [self.view updateConstraintsIfNeeded];
-        [self.view layoutIfNeeded];
-        self.showMenu = NO;
-        [UIView  beginAnimations:@"move" context:nil];
-        [UIView setAnimationDuration:3.0];
-        //        [UIView setAnimationBeginsFromCurrentState:YES];
-        //        [UIView animateWithDuration:3.0 animations:^{
-        [self.view setNeedsUpdateConstraints];
-        [self.view layoutIfNeeded];
-        //        }];
-        
-        [UIView commitAnimations];
-        layer.speed = 1.0;
+        [UIView animateWithDuration:3.0 animations:^{
+            [self.view setNeedsUpdateConstraints];
+            [self.view layoutIfNeeded];
+        }];
+        self.view.layer.speed = 1;
         self.view.layer.timeOffset = 0;
         self.view.layer.timeOffset = self.percent;
         
@@ -195,29 +182,6 @@
 //        layer.beginTime = 0.0;
 //        CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - self.pausedTime;
 //        layer.beginTime = timeSincePause;
-    }
-}
-
--(void)pauseLayer:(CALayer*)layer {
-    CFTimeInterval pausedTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil];
-    layer.speed = 0.0;
-    layer.timeOffset = pausedTime;
-}
-
--(void)resumeLayer:(CALayer*)layer {
-    CFTimeInterval pausedTime = [layer timeOffset];
-    layer.speed = 1.0;
-    layer.timeOffset = 0.0;
-    layer.beginTime = 0.0;
-    CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - pausedTime;
-    layer.beginTime = timeSincePause;
-}
-
-- (void)stopAnimation:(UIView *)view
-{
-    [view.layer removeAllAnimations];
-    for (UIView *subview in view.subviews) {
-        [self stopAnimation:subview];
     }
 }
 

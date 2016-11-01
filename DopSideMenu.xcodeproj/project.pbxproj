@@ -240,6 +240,7 @@
 				TargetAttributes = {
 					2BB11AAB1D73058E0060AC64 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = 2MBCXRJ4S3;
 					};
 					2BB11AC41D73058E0060AC64 = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -451,7 +452,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 2MBCXRJ4S3;
 				INFOPLIST_FILE = DopSideMenu/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.oxape.DopSideMenu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -462,7 +465,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 2MBCXRJ4S3;
 				INFOPLIST_FILE = DopSideMenu/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.oxape.DopSideMenu;
 				PRODUCT_NAME = "$(TARGET_NAME)";

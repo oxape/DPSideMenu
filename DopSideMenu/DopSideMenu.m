@@ -20,6 +20,8 @@
 @property (nonatomic, assign) BOOL showMenu;
 @property (nonatomic, assign) BOOL menuVisible;
 
+@property (nonatomic, strong) UIGestureRecognizer *recognizer;
+
 @property (nonatomic, assign) CFTimeInterval pausedTime;
 @property (nonatomic, assign) CGPoint beginPoint;
 @property (nonatomic, assign) CGFloat percent;
@@ -128,8 +130,12 @@
 {
     if (!_contentViewController) {
         _contentViewController = contentViewController;
-        UIPanGestureRecognizer *recongnizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerAction:)];
-        [contentViewController.view addGestureRecognizer:recongnizer];
+        UIPanGestureRecognizer *recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerAction:)];
+        [contentViewController.view addGestureRecognizer:recognizer];
+        self.recognizer = recognizer;
+        if(!self.showMenu) {
+            self.recognizer.enabled = NO;
+        }
         return;
     }
     [self hideViewController:_contentViewController];
@@ -140,8 +146,12 @@
     [self.contentViewContainer addSubview:self.contentViewController.view];
     [self.contentViewController didMoveToParentViewController:self];
     
-    UIPanGestureRecognizer *recongnizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerAction:)];
-    [contentViewController.view addGestureRecognizer:recongnizer];
+    UIPanGestureRecognizer *recognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGestureRecognizerAction:)];
+    [contentViewController.view addGestureRecognizer:recognizer];
+    self.recognizer = recognizer;
+    if(!self.showMenu) {
+        self.recognizer.enabled = NO;
+    }
 }
 
 #pragma mark - Action Method
@@ -208,6 +218,7 @@
         self.percent = 1;
         [link invalidate];
         self.view.layer.speed = 1;
+        self.recognizer.enabled = NO;
     }
     self.view.layer.timeOffset = self.percent * self.animationDuration;
 }
@@ -223,9 +234,11 @@
             [self.view layoutIfNeeded];
         } completion:^(BOOL finished) {
             self.menuVisible = YES;
+            self.recognizer.enabled = YES;
         }];
     } else {
         self.menuVisible = YES;
+        self.recognizer.enabled = YES;
         [self.view setNeedsUpdateConstraints];
         [self.view layoutIfNeeded];
     }
@@ -235,6 +248,7 @@
 {
     self.showMenu = NO;
     self.menuVisible = NO;
+    self.recognizer.enabled = NO;
     if (animated) {
         [UIView animateWithDuration:self.animationDuration animations:^{
             [self.view setNeedsUpdateConstraints];

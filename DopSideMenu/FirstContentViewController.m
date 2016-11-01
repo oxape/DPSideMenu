@@ -20,11 +20,11 @@
 }
 
 - (IBAction)showMenu {
-    [self.sideMenuViewController showMenuViewController];
+    [self.sideMenuViewController showMenuViewControllerAnimated:YES];
 }
 
 - (IBAction)hideMenu {
-    [self.sideMenuViewController hideMenuViewController];
+    [self.sideMenuViewController hideMenuViewControllerAnimated:YES];
 }
 
 @end

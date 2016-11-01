@@ -15,7 +15,7 @@
 @property (assign, readwrite, nonatomic) IBInspectable CGFloat contentViewInShowMenuOffsetLeft;
 
 
-- (void)showMenuViewController;
-- (void)hideMenuViewController;
+- (void)showMenuViewControllerAnimated:(BOOL)animated;
+- (void)hideMenuViewControllerAnimated:(BOOL)animated;
 
 @end

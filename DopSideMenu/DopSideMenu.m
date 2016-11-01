@@ -189,31 +189,61 @@
 
 - (void)displayLinkTick:(CADisplayLink *)link {
     //0.5作为门限
-    if(self.percent > 0.5) {
+    if (self.percent > 0.5) {
+        self.percent += link.duration/self.animationDuration;
+    } else {
+        self.percent -= link.duration/self.animationDuration;
     }
+    if(self.percent < 0) {
+        //这里为操作取消的处理
+        self.percent = 0;
+        //为了避免闪屏,暂时不会闪屏先注释
+//        UIView *snapshot = [self.view snapshotViewAfterScreenUpdates:NO];
+//        [self.view addSubview:snapshot];
+//        [snapshot performSelector:@selector(removeFromSuperview) withObject:nil afterDelay:1/60];
+        [link invalidate];
+        self.view.layer.speed = 1;
+        [self showMenuViewControllerAnimated:NO];
+    } else if (self.percent > 1) {
+        self.percent = 1;
+        [link invalidate];
+        self.view.layer.speed = 1;
+    }
+    self.view.layer.timeOffset = self.percent * self.animationDuration;
 }
 
 #pragma mark - Public Method
 
-- (void)showMenuViewController
+- (void)showMenuViewControllerAnimated:(BOOL)animated
 {
     self.showMenu = YES;
-    [UIView animateWithDuration:self.animationDuration animations:^{
+    if (animated) {
+        [UIView animateWithDuration:self.animationDuration animations:^{
+            [self.view setNeedsUpdateConstraints];
+            [self.view layoutIfNeeded];
+        } completion:^(BOOL finished) {
+            self.menuVisible = YES;
+        }];
+    } else {
+        self.menuVisible = YES;
         [self.view setNeedsUpdateConstraints];
         [self.view layoutIfNeeded];
-    } completion:^(BOOL finished) {
-        self.menuVisible = YES;
-    }];
+    }
 }
 
-- (void)hideMenuViewController
+- (void)hideMenuViewControllerAnimated:(BOOL)animated
 {
     self.showMenu = NO;
     self.menuVisible = NO;
-    [UIView animateWithDuration:self.animationDuration animations:^{
+    if (animated) {
+        [UIView animateWithDuration:self.animationDuration animations:^{
+            [self.view setNeedsUpdateConstraints];
+            [self.view layoutIfNeeded];
+        }];
+    } else {
         [self.view setNeedsUpdateConstraints];
         [self.view layoutIfNeeded];
-    }];
+    }
 }
 
 #pragma mark - Lazy init

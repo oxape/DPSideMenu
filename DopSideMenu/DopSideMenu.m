@@ -59,7 +59,7 @@
 
 - (void)loadView
 {
-//    [super loadView];//父类方法我默认提供一个UIView给视图控制器,自己提供则不要调用父类方法
+//    [super loadView];//父类方法默认提供一个UIView给视图控制器,自己提供则不要调用父类方法
     self.view = [[DopSideMenuView alloc] init];
 }
 
@@ -186,7 +186,6 @@
         if (persent > 1) {
             persent = 1;
         }
-//        NSLog(@"point.x = %.2f width = %.2f percent = %.2f", offset, self.beginPoint.x, persent);
         persent = persent;
         self.view.layer.timeOffset = 0 + persent*self.animationDuration;
         self.percent = persent;

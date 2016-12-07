@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11161"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -41,7 +42,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="laE-HM-YB9" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1363" y="573"/>
+            <point key="canvasLocation" x="1438" y="569"/>
         </scene>
         <!--Item 1-->
         <scene sceneID="Fa8-2u-70d">
@@ -55,17 +56,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RdQ-NB-rNf">
-                                <frame key="frameInset" minX="20" minY="20" width="75" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RdQ-NB-rNf">
                                 <state key="normal" title="showMenu"/>
                                 <connections>
                                     <action selector="showMenu" destination="UI2-4r-g6F" eventType="touchUpInside" id="IQz-Lx-3fQ"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s6b-zF-SBB">
-                                <frame key="frameInset" minX="20" minY="513" width="68" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s6b-zF-SBB">
                                 <state key="normal" title="hideMenu"/>
                                 <connections>
                                     <action selector="hideMenu" destination="UI2-4r-g6F" eventType="touchUpInside" id="pf7-HJ-3q2"/>
@@ -73,6 +70,12 @@
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="s6b-zF-SBB" firstAttribute="leading" secondItem="b3U-OW-D3o" secondAttribute="leadingMargin" constant="4" id="Iok-nz-Sf9"/>
+                            <constraint firstItem="RdQ-NB-rNf" firstAttribute="top" secondItem="0aX-Fb-uKK" secondAttribute="bottom" id="KGc-CT-5eJ"/>
+                            <constraint firstItem="48z-rj-al4" firstAttribute="top" secondItem="s6b-zF-SBB" secondAttribute="bottom" constant="75" id="LH2-ZC-8Zl"/>
+                            <constraint firstItem="RdQ-NB-rNf" firstAttribute="leading" secondItem="s6b-zF-SBB" secondAttribute="leading" id="PFe-3i-V3K"/>
+                        </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Item 1" id="5yS-bn-a37"/>
                 </viewController>
@@ -93,7 +96,7 @@
                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="wbh-jP-me5" id="JLu-0b-Yir">
-                                    <frame key="frameInset" width="375" height="43"/>
+                                    <frame key="frameInset" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>

@@ -32,7 +32,7 @@
 
 - (instancetype)init
 {
-    self = [self init];
+    self = [super init];
     if (self) {
         [self commonInit];
     }
